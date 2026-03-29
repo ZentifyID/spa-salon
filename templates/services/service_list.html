@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Услуги - SPA Salon{% endblock %}
+
+{% block content %}
+<section>
+    <h1>Услуги</h1>
+    <div class="grid">
+        {% for service in services %}
+            <article class="card">
+                <h2>{{ service.name }}</h2>
+                <p>{{ service.description|default:"Описание скоро добавим." }}</p>
+                <p><strong>{{ service.duration_minutes }} мин</strong></p>
+                <p class="price">{{ service.price }} ₽</p>
+                <a class="btn btn-small" href="{% url 'booking:create' %}">Записаться</a>
+            </article>
+        {% empty %}
+            <p>Список услуг пока пуст.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

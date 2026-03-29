@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}SPA Salon - Главная{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Добро пожаловать в SPA Salon</h1>
+    <p>Ритуалы расслабления, уходовые программы и восстановление в спокойной атмосфере.</p>
+    <a class="btn" href="{% url 'booking:create' %}">Записаться</a>
+</section>
+
+<section>
+    <h2>Популярные услуги</h2>
+    <div class="grid">
+        {% for service in featured_services %}
+            <article class="card">
+                <h3>{{ service.name }}</h3>
+                <p>{{ service.description|default:"Описание скоро добавим." }}</p>
+                <p><strong>{{ service.duration_minutes }} мин</strong> • {{ service.price }} ₽</p>
+            </article>
+        {% empty %}
+            <p>Пока нет услуг. Добавьте их через админ-панель.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
