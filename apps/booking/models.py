@@ -1,6 +1,9 @@
+﻿from django.contrib.auth import get_user_model
 from django.db import models
 
 from apps.services.models import Service
+
+User = get_user_model()
 
 
 class Appointment(models.Model):
@@ -9,6 +12,13 @@ class Appointment(models.Model):
         CONFIRMED = "confirmed", "Подтверждена"
         CANCELED = "canceled", "Отменена"
 
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="appointments",
+    )
     full_name = models.CharField(max_length=120)
     phone = models.CharField(max_length=30)
     email = models.EmailField(blank=True)

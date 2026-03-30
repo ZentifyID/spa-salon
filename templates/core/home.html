@@ -1,22 +1,47 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
-{% block title %}SPA Salon - Главная{% endblock %}
+{% block title %}Luma SPA - Салон ухода и восстановления{% endblock %}
 
 {% block content %}
 <section class="hero">
-    <h1>Добро пожаловать в SPA Salon</h1>
-    <p>Ритуалы расслабления, уходовые программы и восстановление в спокойной атмосфере.</p>
-    <a class="btn" href="{% url 'booking:create' %}">Записаться</a>
+    <div class="hero-content">
+        <p class="eyebrow">Ритуалы заботы о себе</p>
+        <h1>Найдите идеальный баланс между восстановлением и красотой</h1>
+        <p>Профессиональные мастера, премиальные уходовые программы и онлайн-запись в пару кликов.</p>
+        <div class="hero-actions">
+            <a class="btn" href="{% url 'booking:create' %}">Записаться онлайн</a>
+            <a class="btn btn-secondary" href="{% url 'services:list' %}">Посмотреть услуги</a>
+        </div>
+    </div>
+    <div class="hero-stats">
+        <article>
+            <strong>{{ services_count }}</strong>
+            <span>активных услуг</span>
+        </article>
+        <article>
+            <strong>7 дней</strong>
+            <span>в неделю работаем</span>
+        </article>
+        <article>
+            <strong>10:00-22:00</strong>
+            <span>режим салона</span>
+        </article>
+    </div>
 </section>
 
-<section>
-    <h2>Популярные услуги</h2>
+<section class="section-block">
+    <div class="section-head">
+        <h2>Популярные программы</h2>
+        <a href="{% url 'services:list' %}">Все услуги</a>
+    </div>
     <div class="grid">
         {% for service in featured_services %}
             <article class="card">
                 <h3>{{ service.name }}</h3>
                 <p>{{ service.description|default:"Описание скоро добавим." }}</p>
-                <p><strong>{{ service.duration_minutes }} мин</strong> • {{ service.price }} ₽</p>
+                <p class="meta">{{ service.duration_minutes }} мин</p>
+                <p class="price">{{ service.price }} ₽</p>
+                <a class="btn btn-small" href="{% url 'booking:create' %}?service={{ service.id }}">Выбрать</a>
             </article>
         {% empty %}
             <p>Пока нет услуг. Добавьте их через админ-панель.</p>

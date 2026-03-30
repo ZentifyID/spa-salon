@@ -1,14 +1,38 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
-{% block title %}Онлайн-запись - SPA Salon{% endblock %}
+{% block title %}Онлайн-запись - Luma SPA{% endblock %}
 
 {% block content %}
-<section>
-    <h1>Онлайн-запись</h1>
-    <p>Оставьте заявку, и администратор подтвердит время визита.</p>
-    <form method="post" class="form">
+<section class="section-block split-layout">
+    <div>
+        <p class="eyebrow">Онлайн-запись</p>
+        <h1>Выберите удобное время</h1>
+        <p>После отправки заявки администратор свяжется с вами для подтверждения записи.</p>
+
+        {% if user.is_authenticated %}
+            <p class="note">Вы авторизованы как <strong>{{ user.username }}</strong>. Запись автоматически сохранится в личном кабинете.</p>
+        {% else %}
+            <p class="note">Чтобы видеть историю записей, <a href="{% url 'accounts:login' %}">войдите в аккаунт</a> или <a href="{% url 'accounts:signup' %}">зарегистрируйтесь</a>.</p>
+        {% endif %}
+    </div>
+
+    <form method="post" class="form-card">
         {% csrf_token %}
-        {{ form.as_p }}
+
+        {% if form.non_field_errors %}
+            <div class="form-errors">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        {% for field in form %}
+            <div class="field-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <small class="field-error">{{ field.errors|striptags }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+
         <button type="submit" class="btn">Отправить заявку</button>
     </form>
 </section>

@@ -1,0 +1,78 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Личный кабинет - Luma SPA{% endblock %}
+
+{% block content %}
+<section class="section-block">
+    <div class="section-head">
+        <h1>Личный кабинет</h1>
+        <a href="{% url 'booking:create' %}">Новая запись</a>
+    </div>
+    <p>Пользователь: <strong>{{ user.get_full_name|default:user.username }}</strong></p>
+</section>
+
+<section class="section-block">
+    <h2>Активные записи</h2>
+    <div class="table-wrap">
+        <table class="appointments-table">
+            <thead>
+                <tr>
+                    <th>Услуга</th>
+                    <th>Дата и время</th>
+                    <th>Статус</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in upcoming_appointments %}
+                    <tr>
+                        <td>{{ item.service.name }}</td>
+                        <td>{{ item.appointment_at|date:"d.m.Y H:i" }}</td>
+                        <td><span class="status status-{{ item.status }}">{{ item.get_status_display }}</span></td>
+                        <td>
+                            {% if item.status != 'canceled' %}
+                                <form method="post" action="{% url 'booking:cancel' item.id %}">
+                                    {% csrf_token %}
+                                    <button class="btn btn-small btn-danger" type="submit">Отменить</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4">У вас пока нет активных записей.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="section-block">
+    <h2>История отмен</h2>
+    <div class="table-wrap">
+        <table class="appointments-table">
+            <thead>
+                <tr>
+                    <th>Услуга</th>
+                    <th>Дата и время</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in history_appointments %}
+                    <tr>
+                        <td>{{ item.service.name }}</td>
+                        <td>{{ item.appointment_at|date:"d.m.Y H:i" }}</td>
+                        <td><span class="status status-canceled">{{ item.get_status_display }}</span></td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">Отменённых записей нет.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
