@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Мастера - Арбуз СПА{% endblock %}
+
+{% block content %}
+<section class="section-block">
+    <div class="section-head">
+        <h1>Наши мастера</h1>
+        <a href="{% url 'booking:create' %}">Перейти к записи</a>
+    </div>
+    <div class="grid">
+        {% for master in masters %}
+            <article class="card">
+                <h2>{{ master.full_name }}</h2>
+                <p>{{ master.bio|default:"Информация о мастере скоро появится." }}</p>
+                <p class="meta">
+                    {% if master.average_rating %}
+                        Рейтинг: {{ master.average_rating|floatformat:1 }} / 5
+                    {% else %}
+                        Пока без оценок
+                    {% endif %}
+                    • Отзывов: {{ master.approved_reviews_count }}
+                </p>
+                <p class="meta">
+                    Услуги:
+                    {% for service in master.services.all %}
+                        {{ service.name }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        пока не назначены
+                    {% endfor %}
+                </p>
+                <a class="btn btn-small" href="{% url 'masters:detail' master.id %}">Профиль мастера</a>
+            </article>
+        {% empty %}
+            <p>Активных мастеров пока нет.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

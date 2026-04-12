@@ -1,6 +1,6 @@
 ﻿{% extends "base.html" %}
 
-{% block title %}Онлайн-запись - Eggplant SPA{% endblock %}
+{% block title %}Онлайн-запись - Арбуз СПА{% endblock %}
 
 {% block content %}
 <section class="section-block split-layout">
@@ -27,13 +27,148 @@
             <div class="field-group">
                 <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                 {{ field }}
+                {% if field.help_text %}
+                    <small class="field-help">{{ field.help_text }}</small>
+                {% endif %}
                 {% if field.errors %}
                     <small class="field-error">{{ field.errors|striptags }}</small>
                 {% endif %}
             </div>
         {% endfor %}
 
+        <div class="field-group">
+            <label for="slot-date">Дата для свободных слотов</label>
+            <input id="slot-date" type="date" class="field-control">
+            <small class="field-help">Выберите дату, чтобы посмотреть свободное время мастера.</small>
+        </div>
+
+        <div class="field-group">
+            <label for="available-slots">Свободные слоты</label>
+            <select id="available-slots" class="field-control">
+                <option value="">Сначала выберите услугу, мастера и дату</option>
+            </select>
+            <small class="field-help">После выбора слота поле "Желаемая дата и время" заполнится автоматически.</small>
+        </div>
+
         <button type="submit" class="btn">Отправить заявку</button>
     </form>
 </section>
+
+<script>
+    (function () {
+        const serviceSelect = document.getElementById("id_service");
+        const masterSelect = document.getElementById("id_master");
+        const appointmentInput = document.getElementById("id_appointment_at");
+        const slotDateInput = document.getElementById("slot-date");
+        const slotsSelect = document.getElementById("available-slots");
+        const mastersEndpoint = "{% url 'booking:masters_by_service' %}";
+        const slotsEndpoint = "{% url 'booking:slots_by_master' %}";
+
+        if (!serviceSelect || !masterSelect || !appointmentInput || !slotDateInput || !slotsSelect) return;
+        const localDate = new Date();
+        const year = localDate.getFullYear();
+        const month = String(localDate.getMonth() + 1).padStart(2, "0");
+        const day = String(localDate.getDate()).padStart(2, "0");
+        slotDateInput.min = `${year}-${month}-${day}`;
+
+        const fillMasters = (masters, selectedMaster) => {
+            masterSelect.innerHTML = "";
+
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = masters.length ? "Выберите мастера" : "Нет доступных мастеров";
+            masterSelect.appendChild(placeholder);
+
+            masters.forEach((master) => {
+                const option = document.createElement("option");
+                option.value = String(master.id);
+                option.textContent = master.full_name;
+                if (selectedMaster && String(master.id) === String(selectedMaster)) {
+                    option.selected = true;
+                }
+                masterSelect.appendChild(option);
+            });
+        };
+
+        const fillSlots = (slots) => {
+            slotsSelect.innerHTML = "";
+
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = slots.length ? "Выберите свободное время" : "Свободных слотов нет";
+            slotsSelect.appendChild(placeholder);
+
+            slots.forEach((slot) => {
+                const option = document.createElement("option");
+                option.value = slot;
+                option.textContent = slot;
+                slotsSelect.appendChild(option);
+            });
+        };
+
+        const loadMasters = async () => {
+            const serviceId = serviceSelect.value;
+            if (!serviceId) {
+                fillMasters([], null);
+                fillSlots([]);
+                return;
+            }
+
+            const selectedMaster = masterSelect.value;
+            try {
+                const response = await fetch(`${mastersEndpoint}?service_id=${encodeURIComponent(serviceId)}`);
+                const data = await response.json();
+                fillMasters(data.masters || [], selectedMaster);
+                await loadSlots();
+            } catch (error) {
+                fillMasters([], null);
+                fillSlots([]);
+            }
+        };
+
+        const loadSlots = async () => {
+            const serviceId = serviceSelect.value;
+            const masterId = masterSelect.value;
+            const date = slotDateInput.value;
+
+            if (!serviceId || !masterId || !date) {
+                fillSlots([]);
+                return;
+            }
+
+            const params = new URLSearchParams({
+                service_id: serviceId,
+                master_id: masterId,
+                date: date,
+            });
+            try {
+                const response = await fetch(`${slotsEndpoint}?${params.toString()}`);
+                const data = await response.json();
+                fillSlots(data.slots || []);
+            } catch (error) {
+                fillSlots([]);
+            }
+        };
+
+        const applySlot = () => {
+            if (!slotDateInput.value || !slotsSelect.value) return;
+            appointmentInput.value = `${slotDateInput.value}T${slotsSelect.value}`;
+        };
+
+        if (appointmentInput.value && appointmentInput.value.includes("T")) {
+            slotDateInput.value = appointmentInput.value.split("T")[0];
+        }
+
+        serviceSelect.addEventListener("change", loadMasters);
+        masterSelect.addEventListener("change", loadSlots);
+        slotDateInput.addEventListener("change", loadSlots);
+        slotsSelect.addEventListener("change", applySlot);
+
+        if (serviceSelect.value) {
+            loadMasters();
+        } else {
+            fillSlots([]);
+        }
+    })();
+</script>
 {% endblock %}

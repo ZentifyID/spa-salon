@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}{{ master.full_name }} - Арбуз СПА{% endblock %}
+
+{% block content %}
+<section class="section-block">
+    <div class="section-head">
+        <h1>{{ master.full_name }}</h1>
+        <a href="{% url 'booking:create' %}">Записаться к мастеру</a>
+    </div>
+    <p>{{ master.bio|default:"Информация о мастере скоро появится." }}</p>
+    <p class="meta">
+        {% if average_rating %}
+            Средняя оценка: <strong>{{ average_rating|floatformat:1 }}</strong> / 5
+        {% else %}
+            Средняя оценка пока не сформирована
+        {% endif %}
+        • Одобренных отзывов: {{ approved_reviews_count }}
+    </p>
+    <p class="meta">
+        Выполняет услуги:
+        {% for service in master.services.all %}
+            {{ service.name }}{% if not forloop.last %}, {% endif %}
+        {% empty %}
+            услуги пока не назначены
+        {% endfor %}
+    </p>
+</section>
+
+<section class="section-block">
+    <h2>Отзывы клиентов</h2>
+    <div class="reviews-list">
+        {% for review in reviews %}
+            <article class="card review-card">
+                <p class="review-head">
+                    <strong>{{ review.user.get_full_name|default:review.user.username }}</strong>
+                    <span class="meta">Оценка: {{ review.rating }}/5</span>
+                </p>
+                <p>{{ review.text }}</p>
+                <p class="meta">{{ review.created_at|date:"d.m.Y H:i" }}</p>
+            </article>
+        {% empty %}
+            <p>Пока нет одобренных отзывов.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="section-block">
+    <h2>Оставить отзыв</h2>
+    {% if user.is_authenticated %}
+        {% if user_review %}
+            <p class="note">Вы уже оставляли отзыв. При повторной отправке он снова уйдет на модерацию.</p>
+            <p class="meta">Текущий статус вашего отзыва: <strong>{{ user_review.get_status_display }}</strong></p>
+        {% endif %}
+        <form method="post" action="{% url 'reviews:create_or_update' master.id %}" class="form-card">
+            {% csrf_token %}
+            {% for field in review_form %}
+                <div class="field-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <small class="field-error">{{ field.errors|striptags }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn">Отправить отзыв</button>
+        </form>
+    {% else %}
+        <p class="note">
+            Чтобы оставить отзыв, <a href="{% url 'accounts:login' %}">войдите</a> в аккаунт.
+        </p>
+    {% endif %}
+</section>
+{% endblock %}

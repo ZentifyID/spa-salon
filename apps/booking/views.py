@@ -1,9 +1,15 @@
-﻿from django.contrib import messages
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.dateparse import parse_date
+
+from apps.masters.models import Master
+from apps.services.models import Service
 
 from .forms import AppointmentForm
 from .models import Appointment
+from .scheduling import SLOT_STEP_MINUTES, get_available_slots
 
 
 def create_appointment(request):
@@ -34,6 +40,40 @@ def create_appointment(request):
         form = AppointmentForm(initial=initial)
 
     return render(request, "booking/create_appointment.html", {"form": form})
+
+
+def masters_by_service(request):
+    service_id = request.GET.get("service_id")
+    masters = []
+    if service_id:
+        masters = list(
+            Master.objects.filter(is_active=True, services__id=service_id)
+            .distinct()
+            .values("id", "full_name")
+        )
+    return JsonResponse({"masters": masters})
+
+
+def slots_by_master(request):
+    service_id = request.GET.get("service_id")
+    master_id = request.GET.get("master_id")
+    date_raw = request.GET.get("date")
+
+    if not service_id or not master_id or not date_raw:
+        return JsonResponse({"slots": []})
+
+    date_value = parse_date(date_raw)
+    if not date_value:
+        return JsonResponse({"slots": []})
+
+    master = Master.objects.filter(pk=master_id, is_active=True).first()
+    service = Service.objects.filter(pk=service_id, is_active=True).first()
+    if not master or not service or not master.services.filter(pk=service.pk).exists():
+        return JsonResponse({"slots": []})
+
+    slots = get_available_slots(master, service, date_value)
+    slots_payload = [slot.strftime("%H:%M") for slot in slots]
+    return JsonResponse({"slots": slots_payload, "slot_step_minutes": SLOT_STEP_MINUTES})
 
 
 @login_required

@@ -367,6 +367,10 @@ a {
     color: #9d2213;
 }
 
+.field-help {
+    color: var(--text-soft);
+}
+
 .form-errors {
     border: 1px solid #efb5ad;
     background: #fff1ef;
@@ -412,6 +416,23 @@ a {
 .status-canceled {
     background: #f9e5e3;
     color: #8a2720;
+}
+
+.reviews-list {
+    display: grid;
+    gap: 0.8rem;
+}
+
+.review-card {
+    gap: 0.3rem;
+}
+
+.review-head {
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.7rem;
+    align-items: baseline;
 }
 
 @media (max-width: 900px) {

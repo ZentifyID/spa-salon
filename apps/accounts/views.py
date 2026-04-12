@@ -33,7 +33,7 @@ def signup(request):
 
 @login_required
 def profile(request):
-    appointments = Appointment.objects.filter(user=request.user).select_related("service")
+    appointments = Appointment.objects.filter(user=request.user).select_related("service", "master")
     upcoming = appointments.exclude(status=Appointment.Status.CANCELED)
     history = appointments.filter(status=Appointment.Status.CANCELED)
     return render(
