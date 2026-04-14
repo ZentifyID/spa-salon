@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}{{ master.full_name }} - Арбуз СПА{% endblock %}
 
@@ -8,23 +8,34 @@
         <h1>{{ master.full_name }}</h1>
         <a href="{% url 'booking:create' %}">Записаться к мастеру</a>
     </div>
-    <p>{{ master.bio|default:"Информация о мастере скоро появится." }}</p>
-    <p class="meta">
-        {% if average_rating %}
-            Средняя оценка: <strong>{{ average_rating|floatformat:1 }}</strong> / 5
+
+    <div class="master-detail-layout">
+        {% if master.photo %}
+            <img class="master-photo master-photo-large" src="{{ master.photo.url }}" alt="{{ master.full_name }}">
         {% else %}
-            Средняя оценка пока не сформирована
+            <div class="master-photo master-photo-placeholder master-photo-large">Фото мастера</div>
         {% endif %}
-        • Одобренных отзывов: {{ approved_reviews_count }}
-    </p>
-    <p class="meta">
-        Выполняет услуги:
-        {% for service in master.services.all %}
-            {{ service.name }}{% if not forloop.last %}, {% endif %}
-        {% empty %}
-            услуги пока не назначены
-        {% endfor %}
-    </p>
+
+        <div>
+            <p>{{ master.bio|default:"Информация о мастере скоро появится." }}</p>
+            <p class="meta">
+                {% if average_rating %}
+                    Средняя оценка: <strong>{{ average_rating|floatformat:1 }}</strong> / 5
+                {% else %}
+                    Средняя оценка пока не сформирована
+                {% endif %}
+                • Одобренных отзывов: {{ approved_reviews_count }}
+            </p>
+            <p class="meta">
+                Выполняет услуги:
+                {% for service in master.services.all %}
+                    {{ service.name }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    услуги пока не назначены
+                {% endfor %}
+            </p>
+        </div>
+    </div>
 </section>
 
 <section class="section-block">

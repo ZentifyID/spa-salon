@@ -6,13 +6,19 @@
   <component name="ChangeListManager">
     <list default="true" id="e8e2cb55-f127-4bf7-b351-f9026b2febde" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/accounts/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/login.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/accounts/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/profile.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/accounts/signup.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/accounts/signup.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/blog/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/blog/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/blog/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/blog/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/blog/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/blog/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/core/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/core/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/masters/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/masters/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apps/masters/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/apps/masters/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/main.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/booking/create_appointment.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/booking/create_appointment.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/core/home.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/core/home.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/services/service_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/services/service_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/masters/master_detail.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/masters/master_detail.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/masters/master_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/masters/master_list.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,7 +51,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-2653e85de345-6d6dccd035ac-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-253.31033.139" />
+        <option value="bundled-python-sdk-5a2391486177-d3b881c8e49f-com.jetbrains.pycharm.community.sharedIndexes.bundled-PC-233.13763.11" />
       </set>
     </attachedChunks>
   </component>

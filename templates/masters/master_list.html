@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 
 {% block title %}Мастера - Арбуз СПА{% endblock %}
 
@@ -10,7 +10,12 @@
     </div>
     <div class="grid">
         {% for master in masters %}
-            <article class="card">
+            <article class="card master-card">
+                {% if master.photo %}
+                    <img class="master-photo" src="{{ master.photo.url }}" alt="{{ master.full_name }}">
+                {% else %}
+                    <div class="master-photo master-photo-placeholder">Фото мастера</div>
+                {% endif %}
                 <h2>{{ master.full_name }}</h2>
                 <p>{{ master.bio|default:"Информация о мастере скоро появится." }}</p>
                 <p class="meta">

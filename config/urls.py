@@ -12,6 +12,7 @@ urlpatterns = [
     path("masters/", include("apps.masters.urls")),
     path("booking/", include("apps.booking.urls")),
     path("reviews/", include("apps.reviews.urls")),
+    path("blog/", include("apps.blog.urls")),
     path("accounts/", include("apps.accounts.urls")),
     path("admin/", admin.site.urls),
 ]

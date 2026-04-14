@@ -15,11 +15,15 @@ class MasterDayOffInline(admin.TabularInline):
 
 @admin.register(Master)
 class MasterAdmin(admin.ModelAdmin):
-    list_display = ("full_name", "is_active")
+    list_display = ("full_name", "is_active", "has_photo")
     list_filter = ("is_active", "services")
     search_fields = ("full_name",)
     filter_horizontal = ("services",)
     inlines = (MasterScheduleInline, MasterDayOffInline)
+
+    @admin.display(description="Фото")
+    def has_photo(self, obj):
+        return bool(obj.photo)
 
 
 @admin.register(MasterSchedule)

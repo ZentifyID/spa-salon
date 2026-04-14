@@ -1,4 +1,4 @@
-from django.db import models
+﻿from django.db import models
 from django.core.exceptions import ValidationError
 
 from apps.services.models import Service
@@ -6,6 +6,12 @@ from apps.services.models import Service
 
 class Master(models.Model):
     full_name = models.CharField(max_length=120, verbose_name="ФИО")
+    photo = models.ImageField(
+        upload_to="masters/photos/",
+        blank=True,
+        null=True,
+        verbose_name="Фото",
+    )
     bio = models.TextField(blank=True, verbose_name="О специалисте")
     services = models.ManyToManyField(Service, related_name="masters", verbose_name="Услуги")
     is_active = models.BooleanField(default=True, verbose_name="Активен")

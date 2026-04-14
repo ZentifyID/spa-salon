@@ -1,0 +1,30 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Блог и статьи - Арбуз СПА{% endblock %}
+
+{% block content %}
+<section class="section-block">
+    <div class="section-head">
+        <h1>Блог и статьи</h1>
+        <a href="{% url 'core:home' %}">На главную</a>
+    </div>
+
+    <p class="meta">Советы по уходу, восстановлению и подготовке к процедурам.</p>
+
+    <div class="grid blog-grid">
+        {% for article in articles %}
+            <article class="card blog-card">
+                {% if article.cover_image %}
+                    <img class="blog-cover" src="{{ article.cover_image.url }}" alt="{{ article.title }}">
+                {% endif %}
+                <p class="meta">{{ article.published_at|date:"d.m.Y" }}</p>
+                <h2>{{ article.title }}</h2>
+                <p>{{ article.summary }}</p>
+                <a class="btn btn-small" href="{{ article.get_absolute_url }}">Читать статью</a>
+            </article>
+        {% empty %}
+            <p>Пока нет опубликованных статей.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

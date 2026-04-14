@@ -1,4 +1,5 @@
 ﻿{% extends "base.html" %}
+{% load static %}
 
 {% block title %}Арбуз - Салон ухода и восстановления{% endblock %}
 
@@ -31,6 +32,73 @@
 
 <section class="section-block">
     <div class="section-head">
+        <h2>Фото-акценты</h2>
+    </div>
+    <div class="home-decor-grid">
+        <img class="home-decor-slot" src="{% static 'images/home-slot-1.svg' %}" alt="Декоративное фото 1">
+        <img class="home-decor-slot" src="{% static 'images/home-slot-2.svg' %}" alt="Декоративное фото 2">
+    </div>
+</section>
+
+<section class="section-block">
+    <div class="section-head">
+        <h2>Всего понемногу: отзывы, статьи и услуги</h2>
+    </div>
+    <div class="grid mixed-grid">
+        <article class="card">
+            <h3>Последние отзывы</h3>
+            <div class="reviews-list compact-list">
+                {% for review in latest_reviews %}
+                    <div>
+                        <p class="review-head">
+                            <strong>{{ review.user.get_full_name|default:review.user.username }}</strong>
+                            <span class="meta">★ {{ review.rating }}/5</span>
+                        </p>
+                        <p class="meta">Мастер: {{ review.master.full_name }}</p>
+                        <p>{{ review.text|truncatechars:120 }}</p>
+                    </div>
+                {% empty %}
+                    <p class="meta">Пока нет отзывов. Добавьте первые через страницы мастеров.</p>
+                {% endfor %}
+            </div>
+            <a class="btn btn-small btn-secondary" href="{% url 'masters:list' %}">К мастерам</a>
+        </article>
+
+        <article class="card">
+            <h3>Свежие статьи</h3>
+            <div class="compact-list">
+                {% for article in latest_articles %}
+                    <div>
+                        <p class="meta">{{ article.published_at|date:"d.m.Y" }}</p>
+                        <p><strong>{{ article.title }}</strong></p>
+                        <p>{{ article.summary|truncatechars:110 }}</p>
+                    </div>
+                {% empty %}
+                    <p class="meta">Статьи скоро появятся.</p>
+                {% endfor %}
+            </div>
+            <a class="btn btn-small btn-secondary" href="{% url 'blog:list' %}">Открыть блог</a>
+        </article>
+
+        <article class="card">
+            <h3>Быстрый выбор услуг</h3>
+            <div class="compact-list">
+                {% for service in featured_services %}
+                    <div>
+                        <p><strong>{{ service.name }}</strong></p>
+                        <p class="meta">{{ service.duration_minutes }} мин • {{ service.price }} ₽</p>
+                    </div>
+                {% empty %}
+                    <p class="meta">Список услуг пока пуст.</p>
+                {% endfor %}
+            </div>
+            <a class="btn btn-small" href="{% url 'booking:create' %}">Записаться</a>
+        </article>
+    </div>
+</section>
+
+<section class="section-block">
+    <div class="section-head">
         <h2>Популярные программы</h2>
         <a href="{% url 'services:list' %}">Все услуги</a>
     </div>
@@ -45,6 +113,28 @@
             </article>
         {% empty %}
             <p>Пока нет услуг. Добавьте их через админ-панель.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="section-block">
+    <div class="section-head">
+        <h2>Блог и статьи</h2>
+        <a href="{% url 'blog:list' %}">Все статьи</a>
+    </div>
+    <div class="grid blog-grid">
+        {% for article in latest_articles %}
+            <article class="card blog-card">
+                {% if article.cover_image %}
+                    <img class="blog-cover" src="{{ article.cover_image.url }}" alt="{{ article.title }}">
+                {% endif %}
+                <p class="meta">{{ article.published_at|date:"d.m.Y" }}</p>
+                <h3>{{ article.title }}</h3>
+                <p>{{ article.summary }}</p>
+                <a class="btn btn-small" href="{{ article.get_absolute_url }}">Читать</a>
+            </article>
+        {% empty %}
+            <p>Статьи появятся здесь после публикации в админ-панели.</p>
         {% endfor %}
     </div>
 </section>

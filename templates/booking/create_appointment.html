@@ -24,31 +24,46 @@
         {% endif %}
 
         {% for field in form %}
-            <div class="field-group">
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field }}
-                {% if field.help_text %}
-                    <small class="field-help">{{ field.help_text }}</small>
-                {% endif %}
-                {% if field.errors %}
-                    <small class="field-error">{{ field.errors|striptags }}</small>
-                {% endif %}
-            </div>
+            {% if field.name != "appointment_at" %}
+                <div class="field-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="field-help">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <small class="field-error">{{ field.errors|striptags }}</small>
+                    {% endif %}
+                </div>
+            {% endif %}
         {% endfor %}
 
-        <div class="field-group">
-            <label for="slot-date">Дата для свободных слотов</label>
-            <input id="slot-date" type="date" class="field-control">
-            <small class="field-help">Выберите дату, чтобы посмотреть свободное время мастера.</small>
+        <div class="booking-steps">
+            <p class="steps-title">Когда хотите прийти</p>
+
+            <div class="field-group">
+                <label for="slot-date">1. Выберите дату</label>
+                <input id="slot-date" type="date" class="field-control">
+                <small class="field-help">Доступны только даты из рабочего графика мастера.</small>
+            </div>
+
+            <div class="field-group">
+                <label>2. Выберите свободное время</label>
+                <p id="slot-status" class="field-help slot-status">Сначала выберите услугу и мастера.</p>
+                <div id="available-slots" class="slot-grid"></div>
+                <small id="selected-slot-text" class="field-help">Время пока не выбрано.</small>
+                {% if form.appointment_at.errors %}
+                    <small class="field-error">{{ form.appointment_at.errors|striptags }}</small>
+                {% endif %}
+            </div>
         </div>
 
-        <div class="field-group">
-            <label for="available-slots">Свободные слоты</label>
-            <select id="available-slots" class="field-control">
-                <option value="">Сначала выберите услугу, мастера и дату</option>
-            </select>
-            <small class="field-help">После выбора слота поле "Желаемая дата и время" заполнится автоматически.</small>
-        </div>
+        <input
+            type="hidden"
+            name="{{ form.appointment_at.html_name }}"
+            id="id_appointment_at"
+            value="{{ form.appointment_at.value|default_if_none:'' }}"
+        >
 
         <button type="submit" class="btn">Отправить заявку</button>
     </form>
@@ -60,16 +75,19 @@
         const masterSelect = document.getElementById("id_master");
         const appointmentInput = document.getElementById("id_appointment_at");
         const slotDateInput = document.getElementById("slot-date");
-        const slotsSelect = document.getElementById("available-slots");
+        const slotsContainer = document.getElementById("available-slots");
+        const selectedSlotText = document.getElementById("selected-slot-text");
+        const slotStatus = document.getElementById("slot-status");
         const mastersEndpoint = "{% url 'booking:masters_by_service' %}";
         const slotsEndpoint = "{% url 'booking:slots_by_master' %}";
 
-        if (!serviceSelect || !masterSelect || !appointmentInput || !slotDateInput || !slotsSelect) return;
+        if (!serviceSelect || !masterSelect || !appointmentInput || !slotDateInput || !slotsContainer || !selectedSlotText || !slotStatus) return;
         const localDate = new Date();
         const year = localDate.getFullYear();
         const month = String(localDate.getMonth() + 1).padStart(2, "0");
         const day = String(localDate.getDate()).padStart(2, "0");
         slotDateInput.min = `${year}-${month}-${day}`;
+        let selectedSlot = "";
 
         const fillMasters = (masters, selectedMaster) => {
             masterSelect.innerHTML = "";
@@ -90,19 +108,65 @@
             });
         };
 
-        const fillSlots = (slots) => {
-            slotsSelect.innerHTML = "";
+        const updateHiddenValue = () => {
+            if (!slotDateInput.value || !selectedSlot) {
+                appointmentInput.value = "";
+                selectedSlotText.textContent = "Время пока не выбрано.";
+                return;
+            }
 
-            const placeholder = document.createElement("option");
-            placeholder.value = "";
-            placeholder.textContent = slots.length ? "Выберите свободное время" : "Свободных слотов нет";
-            slotsSelect.appendChild(placeholder);
+            appointmentInput.value = `${slotDateInput.value}T${selectedSlot}`;
+            selectedSlotText.textContent = `Вы выбрали: ${slotDateInput.value}, ${selectedSlot}`;
+        };
+
+        const resetSelectedSlot = () => {
+            selectedSlot = "";
+            updateHiddenValue();
+            const activeButtons = slotsContainer.querySelectorAll(".slot-chip.active");
+            activeButtons.forEach((button) => button.classList.remove("active"));
+        };
+
+        const setSlotStatus = (text, isError = false) => {
+            slotStatus.textContent = text;
+            slotStatus.classList.toggle("slot-status-error", isError);
+        };
+
+        const toggleDateEnabled = () => {
+            const enabled = Boolean(serviceSelect.value && masterSelect.value);
+            slotDateInput.disabled = !enabled;
+            if (!enabled) {
+                slotDateInput.value = "";
+                slotsContainer.innerHTML = "";
+                resetSelectedSlot();
+                setSlotStatus("Сначала выберите услугу и мастера.");
+            }
+        };
+
+        const fillSlots = (slots) => {
+            slotsContainer.innerHTML = "";
+            if (!slots.length) {
+                setSlotStatus("На выбранную дату свободного времени нет.");
+                return;
+            }
+            setSlotStatus("Нажмите на удобное время.");
 
             slots.forEach((slot) => {
-                const option = document.createElement("option");
-                option.value = slot;
-                option.textContent = slot;
-                slotsSelect.appendChild(option);
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "slot-chip";
+                button.textContent = slot;
+                button.dataset.slot = slot;
+                if (slot === selectedSlot) {
+                    button.classList.add("active");
+                }
+                button.addEventListener("click", () => {
+                    selectedSlot = slot;
+                    const chips = slotsContainer.querySelectorAll(".slot-chip");
+                    chips.forEach((chip) => chip.classList.remove("active"));
+                    button.classList.add("active");
+                    updateHiddenValue();
+                });
+                slotsContainer.appendChild(button);
             });
         };
 
@@ -110,7 +174,7 @@
             const serviceId = serviceSelect.value;
             if (!serviceId) {
                 fillMasters([], null);
-                fillSlots([]);
+                toggleDateEnabled();
                 return;
             }
 
@@ -119,10 +183,13 @@
                 const response = await fetch(`${mastersEndpoint}?service_id=${encodeURIComponent(serviceId)}`);
                 const data = await response.json();
                 fillMasters(data.masters || [], selectedMaster);
+                toggleDateEnabled();
                 await loadSlots();
             } catch (error) {
                 fillMasters([], null);
+                toggleDateEnabled();
                 fillSlots([]);
+                setSlotStatus("Не удалось загрузить мастеров. Попробуйте обновить страницу.", true);
             }
         };
 
@@ -132,7 +199,12 @@
             const date = slotDateInput.value;
 
             if (!serviceId || !masterId || !date) {
-                fillSlots([]);
+                slotsContainer.innerHTML = "";
+                if (!serviceId || !masterId) {
+                    setSlotStatus("Сначала выберите услугу и мастера.");
+                } else {
+                    setSlotStatus("Выберите дату, чтобы увидеть свободное время.");
+                }
                 return;
             }
 
@@ -145,29 +217,40 @@
                 const response = await fetch(`${slotsEndpoint}?${params.toString()}`);
                 const data = await response.json();
                 fillSlots(data.slots || []);
+                if (!data.slots || !data.slots.includes(selectedSlot)) {
+                    resetSelectedSlot();
+                } else {
+                    updateHiddenValue();
+                }
             } catch (error) {
                 fillSlots([]);
+                setSlotStatus("Не удалось загрузить свободное время. Попробуйте еще раз.", true);
             }
         };
 
-        const applySlot = () => {
-            if (!slotDateInput.value || !slotsSelect.value) return;
-            appointmentInput.value = `${slotDateInput.value}T${slotsSelect.value}`;
-        };
-
         if (appointmentInput.value && appointmentInput.value.includes("T")) {
-            slotDateInput.value = appointmentInput.value.split("T")[0];
+            const [selectedDate, selectedTime] = appointmentInput.value.split("T");
+            slotDateInput.value = selectedDate;
+            selectedSlot = (selectedTime || "").slice(0, 5);
+            updateHiddenValue();
         }
 
         serviceSelect.addEventListener("change", loadMasters);
-        masterSelect.addEventListener("change", loadSlots);
-        slotDateInput.addEventListener("change", loadSlots);
-        slotsSelect.addEventListener("change", applySlot);
+        masterSelect.addEventListener("change", () => {
+            toggleDateEnabled();
+            resetSelectedSlot();
+            loadSlots();
+        });
+        slotDateInput.addEventListener("change", () => {
+            resetSelectedSlot();
+            loadSlots();
+        });
 
+        toggleDateEnabled();
         if (serviceSelect.value) {
             loadMasters();
         } else {
-            fillSlots([]);
+            setSlotStatus("Сначала выберите услугу и мастера.");
         }
     })();
 </script>

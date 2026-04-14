@@ -1,0 +1,21 @@
+﻿{% extends "base.html" %}
+
+{% block title %}{{ article.title }} - Арбуз СПА{% endblock %}
+
+{% block content %}
+<article class="section-block article-detail">
+    <p class="eyebrow">Блог Арбуз СПА</p>
+    <h1>{{ article.title }}</h1>
+    <p class="meta">Опубликовано {{ article.published_at|date:"d.m.Y" }}</p>
+
+    {% if article.cover_image %}
+        <img class="article-cover" src="{{ article.cover_image.url }}" alt="{{ article.title }}">
+    {% endif %}
+
+    <div class="article-content">
+        {{ article.content|linebreaks }}
+    </div>
+
+    <a class="btn btn-secondary" href="{% url 'blog:list' %}">Ко всем статьям</a>
+</article>
+{% endblock %}
