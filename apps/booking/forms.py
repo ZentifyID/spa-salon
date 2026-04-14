@@ -1,7 +1,8 @@
-from django import forms
+﻿from django import forms
 from django.utils import timezone
 
 from apps.masters.models import Master
+from apps.services.models import Service
 
 from .models import Appointment
 from .scheduling import validate_master_slot
@@ -36,6 +37,7 @@ class AppointmentForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["service"].queryset = Service.objects.filter(is_active=True)
 
         selected_service_id = self.data.get("service") or self.initial.get("service")
         if self.instance.pk and not selected_service_id:
@@ -71,6 +73,10 @@ class AppointmentForm(forms.ModelForm):
         appointment_at = cleaned_data.get("appointment_at")
 
         if not service or not master or not appointment_at:
+            return cleaned_data
+
+        if not service.is_active:
+            self.add_error("service", "Выбранная услуга недоступна для записи.")
             return cleaned_data
 
         if not master.services.filter(pk=service.pk).exists():

@@ -3,6 +3,10 @@
 {% block title %}Онлайн-запись - Арбуз СПА{% endblock %}
 
 {% block content %}
+<script>
+    document.documentElement.classList.add("js-enabled");
+</script>
+
 <section class="section-block split-layout">
     <div>
         <p class="eyebrow">Онлайн-запись</p>
@@ -38,7 +42,16 @@
             {% endif %}
         {% endfor %}
 
-        <div class="booking-steps">
+        <div class="field-group js-fallback-datetime">
+            <label for="{{ form.appointment_at.id_for_label }}">{{ form.appointment_at.label }}</label>
+            {{ form.appointment_at }}
+            {% if form.appointment_at.errors %}
+                <small class="field-error">{{ form.appointment_at.errors|striptags }}</small>
+            {% endif %}
+            <small class="field-help">Если список слотов не загрузился, укажите дату и время вручную.</small>
+        </div>
+
+        <div class="booking-steps js-slot-picker">
             <p class="steps-title">Когда хотите прийти</p>
 
             <div class="field-group">
@@ -49,9 +62,9 @@
 
             <div class="field-group">
                 <label>2. Выберите свободное время</label>
-                <p id="slot-status" class="field-help slot-status">Сначала выберите услугу и мастера.</p>
+                <p id="slot-status" class="field-help slot-status" aria-live="polite" aria-atomic="true">Сначала выберите услугу и мастера.</p>
                 <div id="available-slots" class="slot-grid"></div>
-                <small id="selected-slot-text" class="field-help">Время пока не выбрано.</small>
+                <small id="selected-slot-text" class="field-help" aria-live="polite" aria-atomic="true">Время пока не выбрано.</small>
                 {% if form.appointment_at.errors %}
                     <small class="field-error">{{ form.appointment_at.errors|striptags }}</small>
                 {% endif %}
@@ -60,8 +73,8 @@
 
         <input
             type="hidden"
-            name="{{ form.appointment_at.html_name }}"
-            id="id_appointment_at"
+            id="id_appointment_at_hidden"
+            data-field-name="{{ form.appointment_at.html_name }}"
             value="{{ form.appointment_at.value|default_if_none:'' }}"
         >
 
@@ -73,7 +86,8 @@
     (function () {
         const serviceSelect = document.getElementById("id_service");
         const masterSelect = document.getElementById("id_master");
-        const appointmentInput = document.getElementById("id_appointment_at");
+        const appointmentInput = document.getElementById("id_appointment_at_hidden");
+        const fallbackAppointmentInput = document.getElementById("id_appointment_at");
         const slotDateInput = document.getElementById("slot-date");
         const slotsContainer = document.getElementById("available-slots");
         const selectedSlotText = document.getElementById("selected-slot-text");
@@ -82,6 +96,10 @@
         const slotsEndpoint = "{% url 'booking:slots_by_master' %}";
 
         if (!serviceSelect || !masterSelect || !appointmentInput || !slotDateInput || !slotsContainer || !selectedSlotText || !slotStatus) return;
+        appointmentInput.name = appointmentInput.dataset.fieldName || "";
+        if (fallbackAppointmentInput) {
+            fallbackAppointmentInput.disabled = true;
+        }
         const localDate = new Date();
         const year = localDate.getFullYear();
         const month = String(localDate.getMonth() + 1).padStart(2, "0");

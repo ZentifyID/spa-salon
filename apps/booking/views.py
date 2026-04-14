@@ -1,5 +1,6 @@
-from django.contrib import messages
+﻿from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.dateparse import parse_date
@@ -9,7 +10,7 @@ from apps.services.models import Service
 
 from .forms import AppointmentForm
 from .models import Appointment
-from .scheduling import SLOT_STEP_MINUTES, get_available_slots
+from .scheduling import SLOT_STEP_MINUTES, get_available_slots, validate_master_slot
 
 
 def create_appointment(request):
@@ -31,11 +32,29 @@ def create_appointment(request):
             appointment = form.save(commit=False)
             if request.user.is_authenticated:
                 appointment.user = request.user
-            appointment.save()
-            messages.success(request, "Запись создана. Мы свяжемся с вами для подтверждения.")
-            if request.user.is_authenticated:
-                return redirect("accounts:profile")
-            return redirect("booking:create")
+
+            with transaction.atomic():
+                # Lock relevant rows on databases that support row-level locking.
+                Master.objects.select_for_update().filter(pk=appointment.master_id).exists()
+                Appointment.objects.select_for_update().filter(
+                    master_id=appointment.master_id,
+                    appointment_at__date=appointment.appointment_at.date(),
+                    status__in=[Appointment.Status.NEW, Appointment.Status.CONFIRMED],
+                ).exists()
+
+                is_valid_slot, message = validate_master_slot(
+                    appointment.master,
+                    appointment.service,
+                    appointment.appointment_at,
+                )
+                if not is_valid_slot:
+                    form.add_error("appointment_at", message)
+                else:
+                    appointment.save()
+                    messages.success(request, "Запись создана. Мы свяжемся с вами для подтверждения.")
+                    if request.user.is_authenticated:
+                        return redirect("accounts:profile")
+                    return redirect("booking:create")
     else:
         form = AppointmentForm(initial=initial)
 
