@@ -32,17 +32,28 @@
 
 <section class="section-block">
     <div class="section-head">
-        <h2>Фото-акценты</h2>
+        <h2>Атмосфера салона</h2>
     </div>
-    <div class="home-decor-grid">
-        <img class="home-decor-slot" src="{% static 'images/home-slot-1.svg' %}" alt="Декоративное фото 1">
-        <img class="home-decor-slot" src="{% static 'images/home-slot-2.svg' %}" alt="Декоративное фото 2">
+    <div class="home-atmosphere-layout">
+        <div class="home-atmosphere-media">
+            <img class="home-decor-slot" src="{% static 'images/home-slot-1.jpg' %}" alt="Интерьер салона">
+        </div>
+        <div class="home-atmosphere-copy">
+            <p>
+                В «Арбузе» мы создаём пространство, где можно замедлиться и восстановиться.
+                Мягкий свет, спокойные ароматы и внимание мастеров помогают переключиться
+                с городского ритма на состояние глубокого комфорта.
+            </p>
+            <p class="meta">
+                Здесь каждая процедура — это не просто уход, а маленький ритуал заботы о себе.
+            </p>
+        </div>
     </div>
 </section>
 
 <section class="section-block">
     <div class="section-head">
-        <h2>Всего понемногу: отзывы, статьи и услуги</h2>
+        <h2>Отзывы, статьи и услуги</h2>
     </div>
     <div class="grid mixed-grid">
         <article class="card">
@@ -112,8 +123,29 @@
                 <a class="btn btn-small" href="{% url 'booking:create' %}?service={{ service.id }}">Выбрать</a>
             </article>
         {% empty %}
-            <p>Пока нет услуг. Добавьте их через админ-панель.</p>
+            <p>Пока нет услуг.</p>
         {% endfor %}
+    </div>
+</section>
+
+<section class="section-block">
+    <div class="section-head">
+        <h2>Детали пространства</h2>
+    </div>
+    <div class="home-atmosphere-layout home-atmosphere-layout-reverse">
+        <div class="home-atmosphere-copy">
+            <p>
+                Мы продумываем интерьер до мелочей: от текстур и света до музыки в зале.
+                Такие детали создают ощущение уюта и помогают полностью довериться процессу.
+            </p>
+            <p class="meta">
+                В результате каждый визит становится спокойной паузой, после которой легко
+                вернуться к делам с новыми силами.
+            </p>
+        </div>
+        <div class="home-atmosphere-media">
+            <img class="home-decor-slot" src="{% static 'images/home-slot-2.jpg' %}" alt="Детали интерьера">
+        </div>
     </div>
 </section>
 
@@ -134,7 +166,7 @@
                 <a class="btn btn-small" href="{{ article.get_absolute_url }}">Читать</a>
             </article>
         {% empty %}
-            <p>Статьи появятся здесь после публикации в админ-панели.</p>
+            <p>Скоро тут будут статьи.</p>
         {% endfor %}
     </div>
 </section>

@@ -1,0 +1,106 @@
+@startuml
+hide methods
+hide stereotypes
+skinparam classAttributeIconSize 0
+
+entity "User" as User {
+  * id : bigint
+  --
+  username : string
+  email : string
+  password : string
+}
+
+entity "Service" as Service {
+  * id : bigint
+  --
+  name : string
+  description : text
+  duration_minutes : int
+  price : decimal
+  is_active : bool
+  created_at : datetime
+}
+
+entity "Master" as Master {
+  * id : bigint
+  --
+  full_name : string
+  photo : image
+  bio : text
+  is_active : bool
+  created_at : datetime
+}
+
+entity "MasterSchedule" as MasterSchedule {
+  * id : bigint
+  --
+  weekday : int
+  work_start : time
+  work_end : time
+  is_working_day : bool
+}
+
+entity "MasterDayOff" as MasterDayOff {
+  * id : bigint
+  --
+  date : date
+  reason : string
+}
+
+entity "Appointment" as Appointment {
+  * id : bigint
+  --
+  full_name : string
+  phone : string
+  email : string
+  appointment_at : datetime
+  comment : text
+  status : string
+  created_at : datetime
+}
+
+entity "Review" as Review {
+  * id : bigint
+  --
+  rating : smallint
+  text : text
+  status : string
+  created_at : datetime
+  moderated_at : datetime
+}
+
+entity "Article" as Article {
+  * id : bigint
+  --
+  title : string
+  slug : string
+  cover_image : image
+  summary : text
+  content : text
+  is_published : bool
+  published_at : datetime
+  created_at : datetime
+}
+
+entity "Master_Service" as MasterService {
+  * id : implicit
+  --
+  master_id : fk
+  service_id : fk
+}
+
+User ||--o{ Appointment : "creates"
+Service ||--o{ Appointment : "selected for"
+Master ||--o{ Appointment : "assigned to"
+
+Master ||--o{ MasterSchedule : "has"
+Master ||--o{ MasterDayOff : "has"
+
+Master ||--o{ Review : "receives"
+User ||--o{ Review : "writes"
+
+Master ||--o{ MasterService
+Service ||--o{ MasterService
+
+@enduml

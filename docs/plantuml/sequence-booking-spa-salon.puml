@@ -1,0 +1,29 @@
+@startuml
+actor "Клиент" as Client
+participant "Форма записи\n(booking/create)" as Form
+participant "BookingView\ncreate_appointment()" as View
+participant "AppointmentForm" as AppForm
+participant "Scheduling\nvalidate_master_slot()" as Scheduling
+database "SQLite" as DB
+
+Client -> Form : Открывает страницу записи
+Form -> View : GET /booking/
+View --> Form : HTML-форма записи
+
+Client -> Form : Заполняет услугу, мастера,\nдату, контакты
+Form -> View : POST /booking/
+View -> AppForm : form.is_valid()
+AppForm -> Scheduling : validate_master_slot(...)
+Scheduling -> DB : Чтение расписания,\nвыходных и занятых записей
+DB --> Scheduling : Доступные интервалы / конфликт
+Scheduling --> AppForm : Результат проверки
+
+alt Данные корректны
+  View -> DB : Сохранение Appointment
+  DB --> View : Запись создана
+  View --> Client : Сообщение об успехе\nи редирект
+else Найдена ошибка
+  View --> Client : Ошибка в форме\nи повторный вывод страницы
+end
+
+@enduml

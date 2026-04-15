@@ -1,0 +1,60 @@
+@startuml
+skinparam componentStyle rectangle
+
+actor "Пользователь" as UserActor
+actor "Администратор" as AdminActor
+
+package "Клиентская часть" {
+  [Главная страница]
+  [Страница услуг]
+  [Страница мастеров]
+  [Форма записи]
+  [Личный кабинет]
+  [Страницы блога]
+}
+
+package "Django-приложения" {
+  [core]
+  [services]
+  [masters]
+  [booking]
+  [accounts]
+  [reviews]
+  [blog]
+  [admin panel]
+}
+
+database "SQLite\n(db.sqlite3)" as DB
+
+UserActor --> [Главная страница]
+UserActor --> [Страница услуг]
+UserActor --> [Страница мастеров]
+UserActor --> [Форма записи]
+UserActor --> [Личный кабинет]
+UserActor --> [Страницы блога]
+
+[Главная страница] --> [core]
+[Страница услуг] --> [services]
+[Страница мастеров] --> [masters]
+[Форма записи] --> [booking]
+[Личный кабинет] --> [accounts]
+[Страницы блога] --> [blog]
+[Страница мастеров] --> [reviews]
+
+AdminActor --> [admin panel]
+[admin panel] --> [services]
+[admin panel] --> [masters]
+[admin panel] --> [booking]
+[admin panel] --> [reviews]
+[admin panel] --> [blog]
+
+[core] --> DB
+[services] --> DB
+[masters] --> DB
+[booking] --> DB
+[accounts] --> DB
+[reviews] --> DB
+[blog] --> DB
+[admin panel] --> DB
+
+@enduml

@@ -569,17 +569,50 @@ a:focus-visible,
 }
 
 .home-decor-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.home-atmosphere-layout {
     display: grid;
-    grid-template-columns: repeat(2, minmax(180px, 1fr));
-    gap: 0.9rem;
+    grid-template-columns: minmax(260px, 0.95fr) minmax(280px, 1.05fr);
+    align-items: center;
+    gap: 1.4rem;
+}
+
+.home-atmosphere-media {
+    justify-self: start;
+    width: 100%;
+}
+
+.home-atmosphere-copy {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.home-atmosphere-copy p {
+    margin: 0;
+}
+
+.home-atmosphere-layout-reverse .home-atmosphere-copy {
+    order: 1;
+}
+
+.home-atmosphere-layout-reverse .home-atmosphere-media {
+    order: 2;
+    justify-self: end;
 }
 
 .home-decor-slot {
-    width: 100%;
-    height: 150px;
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 420px;
     border-radius: 14px;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .blog-cover {
@@ -656,8 +689,18 @@ a:focus-visible,
     }
 
     .master-detail-layout,
-    .home-decor-grid {
+    .home-decor-grid,
+    .home-atmosphere-layout {
         grid-template-columns: 1fr;
+    }
+
+    .home-atmosphere-media {
+        justify-self: center;
+    }
+
+    .home-atmosphere-layout-reverse .home-atmosphere-copy,
+    .home-atmosphere-layout-reverse .home-atmosphere-media {
+        order: initial;
     }
 }
 

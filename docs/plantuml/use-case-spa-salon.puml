@@ -1,0 +1,62 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+actor "Гость" as Guest
+actor "Клиент" as Client
+actor "Администратор" as Admin
+
+rectangle "Веб-приложение спа-салона" {
+  usecase "Просмотр\nглавной страницы" as UC_Home
+  usecase "Просмотр\nсписка услуг" as UC_Services
+  usecase "Просмотр\nсписка мастеров" as UC_Masters
+  usecase "Просмотр\nкарточки мастера" as UC_MasterCard
+  usecase "Просмотр\nстатей блога" as UC_Blog
+  usecase "Онлайн-запись\nна услугу" as UC_Book
+  usecase "Регистрация" as UC_SignUp
+  usecase "Вход в систему" as UC_Login
+  usecase "Просмотр\nличного кабинета" as UC_Profile
+  usecase "Отмена записи" as UC_Cancel
+  usecase "Добавление\nили изменение отзыва" as UC_Review
+
+  usecase "Управление услугами" as UC_AdminServices
+  usecase "Управление мастерами" as UC_AdminMasters
+  usecase "Управление расписанием\nи выходными" as UC_AdminSchedule
+  usecase "Просмотр и обработка\nзаписей" as UC_AdminAppointments
+  usecase "Модерация отзывов" as UC_AdminReviews
+  usecase "Публикация статей" as UC_AdminBlog
+}
+
+Guest --> UC_Home
+Guest --> UC_Services
+Guest --> UC_Masters
+Guest --> UC_MasterCard
+Guest --> UC_Blog
+Guest --> UC_Book
+Guest --> UC_SignUp
+Guest --> UC_Login
+
+Client --> UC_Home
+Client --> UC_Services
+Client --> UC_Masters
+Client --> UC_MasterCard
+Client --> UC_Blog
+Client --> UC_Book
+Client --> UC_Profile
+Client --> UC_Cancel
+Client --> UC_Review
+
+Admin --> UC_AdminServices
+Admin --> UC_AdminMasters
+Admin --> UC_AdminSchedule
+Admin --> UC_AdminAppointments
+Admin --> UC_AdminReviews
+Admin --> UC_AdminBlog
+
+UC_Book .> UC_Login : <<optional>>
+UC_Profile .> UC_Login : <<include>>
+UC_Cancel .> UC_Profile : <<include>>
+UC_Review .> UC_Login : <<include>>
+
+@enduml
