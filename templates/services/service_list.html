@@ -12,7 +12,7 @@
         {% for service in services %}
             <article class="card service-card">
                 <h2>{{ service.name }}</h2>
-                <p>{{ service.description|default:"Описание скоро добавим." }}</p>
+                <p class="service-description">{{ service.description|default:"Описание скоро добавим." }}</p>
                 <div class="service-meta">
                     <span>{{ service.duration_minutes }} мин</span>
                     <span class="price">{{ service.price }} ₽</span>

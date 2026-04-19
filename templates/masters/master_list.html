@@ -8,33 +8,37 @@
         <h1>Наши мастера</h1>
         <a href="{% url 'booking:create' %}">Перейти к записи</a>
     </div>
-    <div class="grid">
+    <div class="masters-list">
         {% for master in masters %}
-            <article class="card master-card">
+            <article class="card master-card master-card-horizontal">
                 {% if master.photo %}
                     <img class="master-photo" src="{{ master.photo.url }}" alt="{{ master.full_name }}">
                 {% else %}
                     <div class="master-photo master-photo-placeholder">Фото мастера</div>
                 {% endif %}
-                <h2>{{ master.full_name }}</h2>
-                <p>{{ master.bio|default:"Информация о мастере скоро появится." }}</p>
-                <p class="meta">
-                    {% if master.average_rating %}
-                        Рейтинг: {{ master.average_rating|floatformat:1 }} / 5
-                    {% else %}
-                        Пока без оценок
-                    {% endif %}
-                    • Отзывов: {{ master.approved_reviews_count }}
-                </p>
-                <p class="meta">
-                    Услуги:
-                    {% for service in master.services.all %}
-                        {{ service.name }}{% if not forloop.last %}, {% endif %}
-                    {% empty %}
-                        пока не назначены
-                    {% endfor %}
-                </p>
-                <a class="btn btn-small" href="{% url 'masters:detail' master.id %}">Профиль мастера</a>
+                <div class="master-content">
+                    <h2>{{ master.full_name }}</h2>
+                    <p class="master-bio">{{ master.bio|default:"Информация о мастере скоро появится." }}</p>
+                    <p class="meta">
+                        {% if master.average_rating %}
+                            <span class="rating-star">★</span> {{ master.average_rating|floatformat:1 }} / 5
+                        {% else %}
+                            Пока без оценок
+                        {% endif %}
+                        • Отзывов: {{ master.approved_reviews_count }}
+                    </p>
+                    <p class="meta master-services">
+                        Услуги:
+                        {% for service in master.services.all %}
+                            {{ service.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            пока не назначены
+                        {% endfor %}
+                    </p>
+                </div>
+                <div class="master-card-actions">
+                    <a class="btn btn-small" href="{% url 'masters:detail' master.id %}">Профиль мастера</a>
+                </div>
             </article>
         {% empty %}
             <p>Активных мастеров пока нет.</p>

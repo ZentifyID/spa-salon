@@ -20,7 +20,7 @@
             <p>{{ master.bio|default:"Информация о мастере скоро появится." }}</p>
             <p class="meta">
                 {% if average_rating %}
-                    Средняя оценка: <strong>{{ average_rating|floatformat:1 }}</strong> / 5
+                    Средняя оценка: <strong>★ {{ average_rating|floatformat:1 }}</strong> / 5
                 {% else %}
                     Средняя оценка пока не сформирована
                 {% endif %}

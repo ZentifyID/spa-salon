@@ -293,6 +293,39 @@ a:focus-visible,
     color: var(--text-soft);
 }
 
+.service-card {
+    height: 100%;
+}
+
+.service-card h2 {
+    margin: 0;
+    line-height: 1.25;
+    min-height: 3.75em;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.service-card .service-description {
+    margin: 0;
+    color: var(--text-soft);
+    flex: 1 1 auto;
+    min-height: 5.6em;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.service-card .service-meta {
+    margin-top: auto;
+}
+
+.service-card .btn {
+    margin-top: 0.2rem;
+}
+
 .price {
     font-size: 1.2rem;
     font-weight: 700;
@@ -568,6 +601,13 @@ a:focus-visible,
     line-height: 1.7;
 }
 
+.article-content,
+.article-content p,
+.article-detail h1 {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
 .home-decor-grid {
     display: flex;
     justify-content: center;
@@ -636,6 +676,59 @@ a:focus-visible,
     gap: 0.65rem;
 }
 
+.masters-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.master-card-horizontal {
+    display: grid;
+    grid-template-columns: 180px 1fr auto;
+    align-items: stretch;
+    gap: 1rem;
+}
+
+.master-card-horizontal .master-photo {
+    width: 180px;
+    height: 180px;
+    min-height: 180px;
+    max-height: 180px;
+    object-fit: cover;
+    align-self: start;
+}
+
+.master-content {
+    min-width: 0;
+    display: grid;
+    gap: 0.55rem;
+    align-content: start;
+}
+
+.master-content h2 {
+    margin: 0;
+}
+
+.master-bio {
+    margin: 0;
+    color: var(--text-soft);
+    line-height: 1.45;
+}
+
+.master-services {
+    margin-bottom: 0;
+}
+
+.rating-star {
+    color: #ffd54a;
+}
+
+.master-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-width: 148px;
+}
+
 .master-photo {
     width: 100%;
     height: 180px;
@@ -701,6 +794,21 @@ a:focus-visible,
     .home-atmosphere-layout-reverse .home-atmosphere-copy,
     .home-atmosphere-layout-reverse .home-atmosphere-media {
         order: initial;
+    }
+
+    .master-card-horizontal {
+        grid-template-columns: 1fr;
+    }
+
+    .master-card-horizontal .master-photo {
+        width: 100%;
+        max-width: 100%;
+        height: 180px;
+        min-height: 180px;
+    }
+
+    .master-card-actions {
+        justify-content: flex-start;
     }
 }
 
