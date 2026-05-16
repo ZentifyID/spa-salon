@@ -1,6 +1,7 @@
-﻿from django import forms
+from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
+from .models import Profile
 
 
 class SignUpForm(UserCreationForm):
@@ -28,6 +29,38 @@ class StyledAuthenticationForm(AuthenticationForm):
 
     def __init__(self, request=None, *args, **kwargs):
         super().__init__(request=request, *args, **kwargs)
+        for field in self.fields.values():
+            css_class = field.widget.attrs.get("class", "")
+            field.widget.attrs["class"] = f"field-control {css_class}".strip()
+
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ("first_name", "last_name", "email")
+        labels = {
+            "first_name": "Имя",
+            "last_name": "Фамилия",
+            "email": "Email",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            css_class = field.widget.attrs.get("class", "")
+            field.widget.attrs["class"] = f"field-control {css_class}".strip()
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ("phone",)
+        labels = {
+            "phone": "Телефон",
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         for field in self.fields.values():
             css_class = field.widget.attrs.get("class", "")
             field.widget.attrs["class"] = f"field-control {css_class}".strip()

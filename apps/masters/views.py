@@ -1,6 +1,7 @@
 from django.db.models import Avg, Count, Q
 from django.shortcuts import get_object_or_404, render
 
+from apps.booking.models import Appointment
 from apps.reviews.forms import ReviewForm
 from apps.reviews.models import Review
 
@@ -34,9 +35,19 @@ def master_detail(request, pk):
     )
     user_review = None
     review_form = None
+    can_leave_review = False
+    
     if request.user.is_authenticated:
-        user_review = Review.objects.filter(master=master, user=request.user).first()
-        review_form = ReviewForm(instance=user_review)
+        # User must have at least one completed appointment with this master to leave a review
+        can_leave_review = Appointment.objects.filter(
+            user=request.user,
+            master=master,
+            status=Appointment.Status.COMPLETED
+        ).exists()
+        
+        if can_leave_review:
+            user_review = Review.objects.filter(master=master, user=request.user).first()
+            review_form = ReviewForm(instance=user_review)
 
     context = {
         "master": master,
@@ -45,5 +56,6 @@ def master_detail(request, pk):
         "average_rating": reviews.aggregate(avg=Avg("rating"))["avg"],
         "review_form": review_form,
         "user_review": user_review,
+        "can_leave_review": can_leave_review,
     }
     return render(request, "masters/master_detail.html", context)

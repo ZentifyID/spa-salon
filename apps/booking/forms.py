@@ -1,8 +1,9 @@
-﻿from django import forms
+from django import forms
 from django.utils import timezone
 
 from apps.masters.models import Master
 from apps.services.models import Service
+from apps.promotions.models import PromoCode
 
 from .models import Appointment
 from .scheduling import validate_master_slot
@@ -24,6 +25,7 @@ class AppointmentForm(forms.ModelForm):
             "service",
             "master",
             "appointment_at",
+            "promo_code",
             "comment",
         ]
         labels = {
@@ -32,10 +34,12 @@ class AppointmentForm(forms.ModelForm):
             "email": "Email",
             "service": "Услуга",
             "master": "Мастер",
+            "promo_code": "Промокод",
             "comment": "Комментарий",
         }
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
         self.fields["service"].queryset = Service.objects.filter(is_active=True)
 
@@ -57,6 +61,31 @@ class AppointmentForm(forms.ModelForm):
             css_class = field.widget.attrs.get("class", "")
             field.widget.attrs["class"] = f"field-control {css_class}".strip()
         self.fields["comment"].widget.attrs["rows"] = 4
+
+    def clean_promo_code(self):
+        code = self.cleaned_data.get("promo_code")
+        if not code:
+            return ""
+        
+        promo = PromoCode.objects.filter(code__iexact=code).first()
+        if not promo:
+            raise forms.ValidationError("Неверный промокод.")
+        
+        if not promo.is_valid():
+            raise forms.ValidationError("Срок действия этого промокода истек или он неактивен.")
+
+        # Check for one-time usage per user
+        if self.user and self.user.is_authenticated:
+            # Check if user already has a non-canceled appointment with this promo code
+            already_used = Appointment.objects.filter(
+                user=self.user,
+                promo_code__iexact=code,
+            ).exclude(status=Appointment.Status.CANCELED).exists()
+            
+            if already_used:
+                raise forms.ValidationError("Вы уже использовали этот промокод.")
+            
+        return promo.code
 
     def clean_appointment_at(self):
         appointment_at = self.cleaned_data["appointment_at"]

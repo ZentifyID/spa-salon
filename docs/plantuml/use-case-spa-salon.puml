@@ -14,6 +14,7 @@ rectangle "Веб-приложение спа-салона" {
   usecase "Просмотр\nкарточки мастера" as UC_MasterCard
   usecase "Просмотр\nстатей блога" as UC_Blog
   usecase "Онлайн-запись\nна услугу" as UC_Book
+  usecase "Оплата заказа\n(чекаут)" as UC_Pay
   usecase "Регистрация" as UC_SignUp
   usecase "Вход в систему" as UC_Login
   usecase "Просмотр\nличного кабинета" as UC_Profile
@@ -26,6 +27,7 @@ rectangle "Веб-приложение спа-салона" {
   usecase "Просмотр и обработка\nзаписей" as UC_AdminAppointments
   usecase "Модерация отзывов" as UC_AdminReviews
   usecase "Публикация статей" as UC_AdminBlog
+  usecase "Управление акциями\nи промокодами" as UC_AdminPromo
 }
 
 Guest --> UC_Home
@@ -43,6 +45,7 @@ Client --> UC_Masters
 Client --> UC_MasterCard
 Client --> UC_Blog
 Client --> UC_Book
+Client --> UC_Pay
 Client --> UC_Profile
 Client --> UC_Cancel
 Client --> UC_Review
@@ -53,8 +56,10 @@ Admin --> UC_AdminSchedule
 Admin --> UC_AdminAppointments
 Admin --> UC_AdminReviews
 Admin --> UC_AdminBlog
+Admin --> UC_AdminPromo
 
 UC_Book .> UC_Login : <<optional>>
+UC_Pay .> UC_Book : <<include>>
 UC_Profile .> UC_Login : <<include>>
 UC_Cancel .> UC_Profile : <<include>>
 UC_Review .> UC_Login : <<include>>

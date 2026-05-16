@@ -10,7 +10,7 @@ Client -> Form : Открывает страницу записи
 Form -> View : GET /booking/
 View --> Form : HTML-форма записи
 
-Client -> Form : Заполняет услугу, мастера,\nдату, контакты
+Client -> Form : Заполняет услугу, мастера,\nдату, контакты, промокод
 Form -> View : POST /booking/
 View -> AppForm : form.is_valid()
 AppForm -> Scheduling : validate_master_slot(...)
@@ -19,9 +19,10 @@ DB --> Scheduling : Доступные интервалы / конфликт
 Scheduling --> AppForm : Результат проверки
 
 alt Данные корректны
-  View -> DB : Сохранение Appointment
+  View -> View : Расчет стоимости\n(применение промокода)
+  View -> DB : Сохранение Appointment (is_paid=False)
   DB --> View : Запись создана
-  View --> Client : Сообщение об успехе\nи редирект
+  View --> Client : Перенаправление на\nстраницу оплаты (Checkout)
 else Найдена ошибка
   View --> Client : Ошибка в форме\nи повторный вывод страницы
 end

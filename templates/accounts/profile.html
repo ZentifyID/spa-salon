@@ -1,14 +1,41 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
-{% block title %}Личный кабинет - Арбуз СПА{% endblock %}
+{% block title %}Личный кабинет - Aura Spa{% endblock %}
 
 {% block content %}
 <section class="section-block">
     <div class="section-head">
         <h1>Личный кабинет</h1>
-        <a href="{% url 'booking:create' %}">Новая запись</a>
+        <a href="{% url 'booking:create' %}" class="btn btn-small">Новая запись</a>
     </div>
-    <p>Пользователь: <strong>{{ user.get_full_name|default:user.username }}</strong></p>
+    
+    <div class="card" style="margin-top: 1.5rem;">
+        <h3>Личные данные</h3>
+        <form method="post" action="{% url 'accounts:profile' %}">
+            {% csrf_token %}
+            <div style="display: grid; gap: 0.8rem;">
+                {% for field in user_form %}
+                    <div class="field-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <small class="field-error">{{ field.errors|striptags }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                {% for field in profile_form %}
+                    <div class="field-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <small class="field-error">{{ field.errors|striptags }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" name="update_profile" class="btn btn-small" style="margin-top: 0.5rem;">Обновить данные</button>
+            </div>
+        </form>
+    </div>
 </section>
 
 <section class="section-block">
@@ -30,14 +57,26 @@
                         <td>{{ item.service.name }}</td>
                         <td>{{ item.master.full_name|default:"Не выбран" }}</td>
                         <td>{{ item.appointment_at|date:"d.m.Y H:i" }}</td>
-                        <td><span class="status status-{{ item.status }}">{{ item.get_status_display }}</span></td>
                         <td>
-                            {% if item.status != 'canceled' %}
-                                <form method="post" action="{% url 'booking:cancel' item.id %}">
-                                    {% csrf_token %}
-                                    <button class="btn btn-small btn-danger" type="submit">Отменить</button>
-                                </form>
-                            {% endif %}
+                            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                <span class="status status-{{ item.status }}">{{ item.get_status_display }}</span>
+                                {% if item.is_paid %}
+                                    <span class="status status-paid">Оплачено</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 0.5rem;">
+                                {% if not item.is_paid and item.status != 'canceled' %}
+                                    <a href="{% url 'booking:checkout' item.id %}" class="btn btn-small">Оплатить</a>
+                                {% endif %}
+                                {% if item.status != 'canceled' %}
+                                    <form method="post" action="{% url 'booking:cancel' item.id %}">
+                                        {% csrf_token %}
+                                        <button class="btn btn-small btn-danger" type="submit">Отменить</button>
+                                    </form>
+                                {% endif %}
+                            </div>
                         </td>
                     </tr>
                 {% empty %}
@@ -46,12 +85,13 @@
                     </tr>
                 {% endfor %}
             </tbody>
+
         </table>
     </div>
 </section>
 
 <section class="section-block">
-    <h2>История отмен</h2>
+    <h2>История записей</h2>
     <div class="table-wrap">
         <table class="appointments-table">
             <thead>
@@ -68,11 +108,19 @@
                         <td>{{ item.service.name }}</td>
                         <td>{{ item.master.full_name|default:"Не выбран" }}</td>
                         <td>{{ item.appointment_at|date:"d.m.Y H:i" }}</td>
-                        <td><span class="status status-canceled">{{ item.get_status_display }}</span></td>
+                        <td>
+                            {% if item.status == 'canceled' %}
+                                <span class="status status-canceled">Отменена</span>
+                            {% elif item.is_past %}
+                                <span class="status status-confirmed" style="background: rgba(255, 255, 255, 0.1); color: var(--text-soft);">Завершена</span>
+                            {% else %}
+                                <span class="status status-{{ item.status }}">{{ item.get_status_display }}</span>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="4">Отменённых записей нет.</td>
+                        <td colspan="4">История записей пуста.</td>
                     </tr>
                 {% endfor %}
             </tbody>

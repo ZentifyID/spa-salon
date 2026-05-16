@@ -16,6 +16,17 @@ def create_or_update_review(request, master_id):
     if request.method != "POST":
         return redirect("masters:detail", pk=master.id)
 
+    from apps.booking.models import Appointment
+    can_leave_review = Appointment.objects.filter(
+        user=request.user,
+        master=master,
+        status=Appointment.Status.COMPLETED
+    ).exists()
+    
+    if not can_leave_review:
+        messages.error(request, "Вы можете оставить отзыв только после посещения мастера.")
+        return redirect("masters:detail", pk=master.id)
+
     form = ReviewForm(request.POST, instance=review)
     if not form.is_valid():
         messages.error(request, "Проверьте поля формы отзыва.")

@@ -1,6 +1,6 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
-{% block title %}Блог и статьи - Арбуз СПА{% endblock %}
+{% block title %}Блог и статьи - Aura Spa{% endblock %}
 
 {% block content %}
 <section class="section-block">
@@ -9,7 +9,7 @@
         <a href="{% url 'core:home' %}">На главную</a>
     </div>
 
-    <p class="meta">Советы по уходу, восстановлению и подготовке к процедурам.</p>
+    <p class="meta" style="margin-bottom: 1.5rem;">Советы по уходу, восстановлению и подготовке к процедурам.</p>
 
     <div class="grid blog-grid">
         {% for article in articles %}

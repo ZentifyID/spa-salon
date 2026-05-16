@@ -1,4 +1,4 @@
-﻿"""
+"""
 Django settings for config project.
 """
 
@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.reviews",
     "apps.blog",
+    "apps.promotions",
 ]
 
 MIDDLEWARE = [
@@ -50,6 +51,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "apps.promotions.context_processors.active_offer",
             ],
         },
     },

@@ -1,6 +1,6 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
-{% block title %}{{ master.full_name }} - Арбуз СПА{% endblock %}
+{% block title %}{{ master.full_name }} - Aura Spa{% endblock %}
 
 {% block content %}
 <section class="section-block">
@@ -59,23 +59,29 @@
 <section class="section-block">
     <h2>Оставить отзыв</h2>
     {% if user.is_authenticated %}
-        {% if user_review %}
-            <p class="note">Вы уже оставляли отзыв. При повторной отправке он снова уйдет на модерацию.</p>
-            <p class="meta">Текущий статус вашего отзыва: <strong>{{ user_review.get_status_display }}</strong></p>
+        {% if can_leave_review %}
+            {% if user_review %}
+                <p class="note">Вы уже оставляли отзыв. При повторной отправке он снова уйдет на модерацию.</p>
+                <p class="meta">Текущий статус вашего отзыва: <strong>{{ user_review.get_status_display }}</strong></p>
+            {% endif %}
+            <form method="post" action="{% url 'reviews:create_or_update' master.id %}" class="form-card">
+                {% csrf_token %}
+                {% for field in review_form %}
+                    <div class="field-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <small class="field-error">{{ field.errors|striptags }}</small>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn">Отправить отзыв</button>
+            </form>
+        {% else %}
+            <p class="note">
+                Вы сможете оставить отзыв после того, как посетите процедуру у этого мастера.
+            </p>
         {% endif %}
-        <form method="post" action="{% url 'reviews:create_or_update' master.id %}" class="form-card">
-            {% csrf_token %}
-            {% for field in review_form %}
-                <div class="field-group">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                        <small class="field-error">{{ field.errors|striptags }}</small>
-                    {% endif %}
-                </div>
-            {% endfor %}
-            <button type="submit" class="btn">Отправить отзыв</button>
-        </form>
     {% else %}
         <p class="note">
             Чтобы оставить отзыв, <a href="{% url 'accounts:login' %}">войдите</a> в аккаунт.

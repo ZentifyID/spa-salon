@@ -9,6 +9,7 @@ package "Клиентская часть" {
   [Страница услуг]
   [Страница мастеров]
   [Форма записи]
+  [Страница оплаты / чекаут]
   [Личный кабинет]
   [Страницы блога]
 }
@@ -21,6 +22,7 @@ package "Django-приложения" {
   [accounts]
   [reviews]
   [blog]
+  [promotions]
   [admin panel]
 }
 
@@ -30,6 +32,7 @@ UserActor --> [Главная страница]
 UserActor --> [Страница услуг]
 UserActor --> [Страница мастеров]
 UserActor --> [Форма записи]
+UserActor --> [Страница оплаты / чекаут]
 UserActor --> [Личный кабинет]
 UserActor --> [Страницы блога]
 
@@ -37,6 +40,8 @@ UserActor --> [Страницы блога]
 [Страница услуг] --> [services]
 [Страница мастеров] --> [masters]
 [Форма записи] --> [booking]
+[Форма записи] --> [promotions]
+[Страница оплаты / чекаут] --> [booking]
 [Личный кабинет] --> [accounts]
 [Страницы блога] --> [blog]
 [Страница мастеров] --> [reviews]
@@ -47,6 +52,7 @@ AdminActor --> [admin panel]
 [admin panel] --> [booking]
 [admin panel] --> [reviews]
 [admin panel] --> [blog]
+[admin panel] --> [promotions]
 
 [core] --> DB
 [services] --> DB
@@ -55,6 +61,7 @@ AdminActor --> [admin panel]
 [accounts] --> DB
 [reviews] --> DB
 [blog] --> DB
+[promotions] --> DB
 [admin panel] --> DB
 
 @enduml

@@ -11,6 +11,13 @@ entity "User" as User {
   password : string
 }
 
+entity "Profile" as Profile {
+  * id : bigint
+  --
+  user_id : fk
+  phone : string
+}
+
 entity "Service" as Service {
   * id : bigint
   --
@@ -56,6 +63,9 @@ entity "Appointment" as Appointment {
   email : string
   appointment_at : datetime
   comment : text
+  promo_code : string
+  total_price : decimal
+  is_paid : bool
   status : string
   created_at : datetime
 }
@@ -83,6 +93,29 @@ entity "Article" as Article {
   created_at : datetime
 }
 
+entity "PromoCode" as PromoCode {
+  * id : bigint
+  --
+  code : string
+  discount_type : string
+  discount_value : decimal
+  is_active : bool
+  valid_from : datetime
+  valid_until : datetime
+}
+
+entity "SpecialOffer" as SpecialOffer {
+  * id : bigint
+  --
+  title : string
+  description : text
+  image : image
+  button_text : string
+  button_link : string
+  is_active : bool
+  created_at : datetime
+}
+
 entity "Master_Service" as MasterService {
   * id : implicit
   --
@@ -91,6 +124,7 @@ entity "Master_Service" as MasterService {
 }
 
 User ||--o{ Appointment : "creates"
+User ||--|| Profile : "has"
 Service ||--o{ Appointment : "selected for"
 Master ||--o{ Appointment : "assigned to"
 

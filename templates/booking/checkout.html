@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Оплата заказа - Aura Spa{% endblock %}
+
+{% block content %}
+<div class="auth-wrap checkout-wrap">
+    <div class="section-block auth-card">
+        <p class="eyebrow">Оплата заказа #{{ appointment.id }}</p>
+        <h1 class="checkout-title">Завершение бронирования</h1>
+        
+        <div class="order-summary">
+            <div class="summary-item">
+                <span class="label">Услуга:</span>
+                <span class="value">{{ appointment.service.name }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="label">Мастер:</span>
+                <span class="value">{{ appointment.master.full_name }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="label">Дата и время:</span>
+                <span class="value">{{ appointment.appointment_at|date:"d.m.Y H:i" }}</span>
+            </div>
+            
+            <hr class="summary-divider">
+            
+            <div class="summary-item total">
+                <span class="label">К оплате:</span>
+                <span class="value price">{{ appointment.total_price }} руб.</span>
+            </div>
+        </div>
+
+        <form action="{% url 'booking:confirm_payment' appointment.pk %}" method="post" class="payment-form">
+            {% csrf_token %}
+            
+            <div class="mock-card">
+                <div class="card-chip"></div>
+                <div class="field-group">
+                    <label class="field-label">Номер карты</label>
+                    <input type="text" id="card-number" class="field-control" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric" required>
+                </div>
+                <div class="card-row">
+                    <div class="field-group">
+                        <label class="field-label">Срок действия</label>
+                        <input type="text" id="card-expiry" class="field-control" placeholder="MM/YY" maxlength="5" inputmode="numeric" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">CVV</label>
+                        <input type="password" id="card-cvv" class="field-control" placeholder="***" maxlength="3" inputmode="numeric" required>
+                    </div>
+                </div>
+            </div>
+
+            <p class="payment-hint">Это демонстрационная форма оплаты. Введите любые данные и нажмите кнопку ниже.</p>
+            
+            <button type="submit" class="btn btn-full">Подтвердить и оплатить {{ appointment.total_price }} руб.</button>
+            <a href="{% url 'accounts:profile' %}" class="btn btn-secondary btn-full" style="margin-top: 0.8rem;">Оплатить позже</a>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Card Number Formatting
+    const cardNumber = document.getElementById('card-number');
+    cardNumber.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        let formatted = value.match(/.{1,4}/g)?.join(' ') || '';
+        e.target.value = formatted.substring(0, 19);
+    });
+
+    // Expiry Formatting
+    const cardExpiry = document.getElementById('card-expiry');
+    cardExpiry.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 2) {
+            e.target.value = value.substring(0, 2) + '/' + value.substring(2, 4);
+        } else {
+            e.target.value = value;
+        }
+    });
+
+    // CVV - digits only
+    const cardCvv = document.getElementById('card-cvv');
+    cardCvv.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0, 3);
+    });
+</script>
+
+<style>
+    .checkout-wrap {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .checkout-title {
+        margin-bottom: 1.5rem;
+    }
+    .order-summary {
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: var(--radius-md);
+        padding: 1.2rem;
+        margin-bottom: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.6rem;
+    }
+    .summary-item .label {
+        color: var(--text-soft);
+    }
+    .summary-item.total {
+        margin-top: 0.6rem;
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+    .summary-divider {
+        border: 0;
+        border-top: 1px solid var(--line);
+        margin: 0.8rem 0;
+    }
+    .mock-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 18px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+    }
+    .mock-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at 30% 30%, rgba(255, 59, 48, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+    }
+    .card-chip {
+        width: 45px;
+        height: 32px;
+        background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+        opacity: 0.8;
+    }
+    .card-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    .payment-hint {
+        font-size: 0.85rem;
+        color: var(--text-soft);
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    .btn-full {
+        width: 100%;
+    }
+    .field-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-soft);
+        margin-bottom: 0.3rem;
+        display: block;
+    }
+</style>
+{% endblock %}

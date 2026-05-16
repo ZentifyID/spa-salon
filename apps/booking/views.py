@@ -1,4 +1,4 @@
-﻿from django.contrib import messages
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.http import JsonResponse
@@ -7,6 +7,7 @@ from django.utils.dateparse import parse_date
 
 from apps.masters.models import Master
 from apps.services.models import Service
+from apps.promotions.models import PromoCode
 
 from .forms import AppointmentForm
 from .models import Appointment
@@ -23,11 +24,12 @@ def create_appointment(request):
             {
                 "full_name": request.user.get_full_name() or request.user.username,
                 "email": request.user.email,
+                "phone": getattr(request.user.profile, "phone", ""),
             }
         )
 
     if request.method == "POST":
-        form = AppointmentForm(request.POST)
+        form = AppointmentForm(request.POST, user=request.user)
         if form.is_valid():
             appointment = form.save(commit=False)
             if request.user.is_authenticated:
@@ -50,13 +52,23 @@ def create_appointment(request):
                 if not is_valid_slot:
                     form.add_error("appointment_at", message)
                 else:
+                    # Calculate total price
+                    total = appointment.service.price
+                    if appointment.promo_code:
+                        promo = PromoCode.objects.filter(code__iexact=appointment.promo_code).first()
+                        if promo and promo.is_valid():
+                            if promo.discount_type == PromoCode.DiscountType.PERCENT:
+                                total -= (total * promo.discount_value) / 100
+                            else:
+                                total -= promo.discount_value
+                    
+                    appointment.total_price = max(total, 0)
                     appointment.save()
-                    messages.success(request, "Запись создана. Мы свяжемся с вами для подтверждения.")
-                    if request.user.is_authenticated:
-                        return redirect("accounts:profile")
-                    return redirect("booking:create")
+                    
+                    messages.success(request, "Запись создана. Пожалуйста, оплатите заказ.")
+                    return redirect("booking:checkout", pk=appointment.pk)
     else:
-        form = AppointmentForm(initial=initial)
+        form = AppointmentForm(initial=initial, user=request.user)
 
     return render(request, "booking/create_appointment.html", {"form": form})
 
@@ -103,3 +115,24 @@ def cancel_appointment(request, pk):
         appointment.save(update_fields=["status"])
         messages.success(request, "Запись отменена.")
     return redirect("accounts:profile")
+
+
+def checkout(request, pk):
+    appointment = get_object_or_404(Appointment, pk=pk)
+    if appointment.is_paid:
+        return redirect("accounts:profile" if request.user.is_authenticated else "core:home")
+        
+    return render(request, "booking/checkout.html", {"appointment": appointment})
+
+
+def confirm_payment(request, pk):
+    appointment = get_object_or_404(Appointment, pk=pk)
+    if request.method == "POST":
+        appointment.is_paid = True
+        appointment.status = Appointment.Status.CONFIRMED
+        appointment.save(update_fields=["is_paid", "status"])
+        messages.success(request, "Оплата прошла успешно! Ждем вас в нашем салоне.")
+        
+    if request.user.is_authenticated:
+        return redirect("accounts:profile")
+    return redirect("core:home")
